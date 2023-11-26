@@ -1,0 +1,149 @@
+#include <LiquidCrystal.h>
+LiquidCrystal lcd (7,8,9,10,11,12) ;
+const int ButtonUp = 2;
+const int ButtonDown = 3;
+const int pressureIn = A0;
+const int pressureDown = 5;
+const int pressureUp = 6;
+const int pressureZero = 100; //May set this on Setup in the future for sensor degredation/change in ambient pressures.
+const int pressureMax = 285;
+const int pressureTransducerMax = 100;
+int pressureVal = 0;
+int pressureValBase = 0;
+int PressureSetTo = 38;
+int activeButtonStateUp = 0;
+int activeButtonStateDown = 0;
+int lastButtonStateUp = LOW;
+int lastButtonStateDown = LOW;
+int buttonStateUp1;
+int buttonStateUp2;
+int buttonStateDown1;
+int buttonStateDown2;
+
+unsigned long debounceDelay = 50;
+unsigned long lastDebounceTimeUp = 0;
+unsigned long debounceDelayLong = 2000;
+unsigned long lastDebounceTimeDown = 0;
+
+void setup(){
+
+ pressureValBase = analogRead(pressureIn);
+ lcd.begin(16,2);
+ lcd.print ("Tire Inflator");
+ pinMode(ButtonUp, INPUT_PULLUP);
+ pinMode(ButtonDown, INPUT_PULLUP);
+ pinMode(pressureDown, OUTPUT);
+ pinMode(pressureUp, OUTPUT);
+
+ pressureVal  = analogRead(pressureIn);
+ activeButtonStateUp = digitalRead(ButtonDown);
+ activeButtonStateDown = digitalRead(ButtonUp);
+
+}
+
+void loop()
+{
+ pressureVal = ((pressureVal - pressureValBase)*pressureTransducerMax)/(pressureMax-pressureZero); //Sets to pressure value factoring in base measurement from the sensor
+
+ if (activeButtonStateUp != lastButtonStateUp){ //start of Button up function
+   lastDebounceTimeUp = millis();
+}
+    if ((millis() - lastDebounceTimeUp) > debounceDelayLong){ //this loop puts the set pressure up by one if the up button is pushed
+      if (activeButtonStateUp != buttonStateUp2){
+        buttonStateUp2 = activeButtonStateUp;
+        if (buttonStateUp2 == LOW){
+          PressureSetTo = 70;
+          lcd.clear();
+          lcd.print("Set tires to:");
+          lcd.setCursor(0,1);
+          lcd.print(PressureSetTo);
+          lcd.print("   PSI");
+          lcd.print(pressureVal);
+        }
+      }
+    }
+    if ((millis() - lastDebounceTimeUp) > debounceDelay){ //this loop puts the set pressure up by one if the up button is pushed
+      if (activeButtonStateUp != buttonStateUp1){
+        buttonStateUp1 = activeButtonStateUp;
+        if (buttonStateUp1 == LOW){
+          PressureSetTo = PressureSetTo + 1;
+          lcd.clear();
+          lcd.print("Set tires to:");
+          lcd.setCursor(0,1);
+          lcd.print(PressureSetTo);
+          lcd.print("   PSI");
+          lcd.print(pressureVal);
+        }
+      }
+    }
+if (activeButtonStateDown != lastButtonStateDown){ //start of button down function
+  lastDebounceTimeDown = millis();
+}
+  if ((millis() - lastDebounceTimeDown) > debounceDelayLong){
+    if (activeButtonStateDown != buttonStateDown2){
+      buttonStateDown2 = activeButtonStateDown;
+      if (buttonStateDown2  == LOW){
+        PressureSetTo = 38;
+        lcd.clear();
+        lcd.print("Set tires to:");
+        lcd.setCursor(0,1);
+        lcd.print(PressureSetTo);
+        lcd.print("   PSI");
+        lcd.print(pressureVal);
+      }
+    }
+  }
+  if ((millis() - lastDebounceTimeDown) > debounceDelay){ // This loop puts the set pressure down by one if the down button is pushed
+    if (activeButtonStateDown != buttonStateDown1){
+      buttonStateDown1 = activeButtonStateDown;
+      if (buttonStateDown1 == LOW){
+        PressureSetTo = PressureSetTo - 1;
+        lcd.clear();
+        lcd.print("Set tires to:");
+        lcd.setCursor(0,1);
+        lcd.print(PressureSetTo);
+        lcd.print("   PSI");
+        lcd.print(pressureVal);
+      }
+    }
+  }
+
+  lastButtonStateDown = activeButtonStateDown;
+  lastButtonStateUp = activeButtonStateUp;
+  if (pressureVal > 10){
+    lcd.clear();
+    delay(500);
+    lcd.print("set tires to:");
+    lcd.setCursor(0,1);
+    lcd.print(PressureSetTo);
+    lcd.print("  PSI");
+    lcd.print(pressureVal);
+    delay(1000);
+  if (pressureVal - PressureSetTo > 1){
+    lcd.clear();
+    digitalWrite(pressureDown, HIGH);
+    delay(1500);
+    digitalWrite(pressureDown, LOW);
+    delay(1000);
+    lcd.clear();
+    lcd.print("set tires to:");
+    lcd.setCursor(0,1);
+    lcd.print(PressureSetTo);
+    lcd.print("  PSI");
+    lcd.print(pressureVal);
+  }
+  if (pressureVal - PressureSetTo < -1){
+    lcd.clear();
+    digitalWrite(pressureUp, HIGH);
+    delay(1500);
+    digitalWrite(pressureUp, LOW);
+    delay(1000);
+    lcd.clear();
+    lcd.print("set tires to:");
+    lcd.setCursor(0,1);
+    lcd.print(PressureSetTo);
+    lcd.print("  PSI");
+    lcd.print(pressureVal);
+  }
+}
+}
