@@ -30,8 +30,8 @@ void setup(){
  pressureValBase = analogRead(pressureIn);
  lcd.begin(16,2);
  lcd.print ("Tire Inflator");
- pinMode(ButtonUp, INPUT_PULLUP);
- pinMode(ButtonDown, INPUT_PULLUP);
+ pinMode(ButtonUp, INPUT);
+ pinMode(ButtonDown, INPUT);
  pinMode(pressureDown, OUTPUT);
  pinMode(pressureUp, OUTPUT);
 
@@ -51,7 +51,7 @@ void loop()
     if ((millis() - lastDebounceTimeUp) > debounceDelayLong){ //this loop puts the set pressure up by one if the up button is pushed
       if (activeButtonStateUp != buttonStateUp2){
         buttonStateUp2 = activeButtonStateUp;
-        if (buttonStateUp2 == LOW){
+        if (buttonStateUp2 == HIGH){
           PressureSetTo = 70;
           lcd.clear();
           lcd.print("Set tires to:");
@@ -65,7 +65,7 @@ void loop()
     if ((millis() - lastDebounceTimeUp) > debounceDelay){ //this loop puts the set pressure up by one if the up button is pushed
       if (activeButtonStateUp != buttonStateUp1){
         buttonStateUp1 = activeButtonStateUp;
-        if (buttonStateUp1 == LOW){
+        if (buttonStateUp1 == HIGH){
           PressureSetTo = PressureSetTo + 1;
           lcd.clear();
           lcd.print("Set tires to:");
@@ -82,7 +82,7 @@ if (activeButtonStateDown != lastButtonStateDown){ //start of button down functi
   if ((millis() - lastDebounceTimeDown) > debounceDelayLong){
     if (activeButtonStateDown != buttonStateDown2){
       buttonStateDown2 = activeButtonStateDown;
-      if (buttonStateDown2  == LOW){
+      if (buttonStateDown2  == HIGH){
         PressureSetTo = 38;
         lcd.clear();
         lcd.print("Set tires to:");
@@ -96,7 +96,7 @@ if (activeButtonStateDown != lastButtonStateDown){ //start of button down functi
   if ((millis() - lastDebounceTimeDown) > debounceDelay){ // This loop puts the set pressure down by one if the down button is pushed
     if (activeButtonStateDown != buttonStateDown1){
       buttonStateDown1 = activeButtonStateDown;
-      if (buttonStateDown1 == LOW){
+      if (buttonStateDown1 == HIGH){
         PressureSetTo = PressureSetTo - 1;
         lcd.clear();
         lcd.print("Set tires to:");
